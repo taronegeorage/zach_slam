@@ -17,16 +17,25 @@ int main(int argc, char **argv) {
     }
     vector<landmark> ldmks;    
     LoadLandmark(argv[1], ldmks);
-    // for(auto& l : ldmks)
-    //    cout << l.id << " " << l.x << " " << l.y << endl; 
     vector<sensors> sens;
     LoadSensors(argv[2], sens);
     
+    // Initialize belief
     int n = ldmks.size();
-    cerr << 2*n+3 << endl;
-    Eigen::VectorXd mu(2*n+3);
-    for(int i = 0; i < 2*n+3; ++i) mu[i] = 0;
-    cout << mu.matrix() << endl;
+    Eigen::VectorXd mu(2*n+3);// = Eigen::VectorXd::Constant(2*n+3, 0.0);
+    mu.setZero();
+    Eigen::Matrix3d robSigma = Eigen::Matrix3d::Zero();
+    Eigen::MatrixXd robMapSigma(3, 2*n);
+    robMapSigma.setZero();
+    Eigen::MatrixXd mapSigma(2*n, 2*n);
+    mapSigma.setIdentity();
+    mapSigma.diagonal().array() = INT_MAX;
+    Eigen::MatrixXd sigma(3+2*n, 3+2*n);
+    sigma << robSigma, robMapSigma, robMapSigma.transpose(), mapSigma;
+    // cerr << sigma << endl;
+    
+    vector<int> observedLdmks(n, 0);
+
     return 0;
 }
 
