@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <Eigen/Core>
+#include <ekf_slam/extended_kalman_filter.h>
 
 using namespace std;
 
@@ -35,7 +36,10 @@ int main(int argc, char **argv) {
     // cerr << sigma << endl;
     
     vector<int> observedLdmks(n, 0);
-
+    EKF ekf(mu, sigma, sens, observedLdmks);
+    for(int i = 0; i < sens.size(); ++i) {
+        
+    }
     return 0;
 }
 
