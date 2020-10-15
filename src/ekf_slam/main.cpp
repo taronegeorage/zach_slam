@@ -37,6 +37,8 @@ int main(int argc, char **argv) {
     
     vector<int> observedLdmks(n, 0);
     EKF ekf(mu, sigma, sens, observedLdmks);
+    ekf.prediction_step(0);
+    ekf.correction_step(0);
     for(int i = 0; i < sens.size(); ++i) {
         
     }
@@ -81,10 +83,12 @@ void LoadSensors(const string &sensorFile, vector<sensors> &sens) {
                     sens.emplace_back(s);
                 }
                 laser.clear();
+                // read r1, t and r2
                 ss >> odom[0] >> odom[1] >> odom[2];
                 num++;
             } else {
                 double id, range, bearing;
+                // read id, range and bearing
                 ss >> id >> range >> bearing;
                 laser.push_back({id, range, bearing});
             }
