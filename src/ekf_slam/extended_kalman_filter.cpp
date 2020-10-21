@@ -1,6 +1,7 @@
 #include <ekf_slam/extended_kalman_filter.h>
 #include <iostream>
 #include <cmath>
+#include <Eigen/Dense>
 
 void EKF::prediction_step(int step) {
     vector<double> odom = sensdata_[step].odom;
@@ -70,7 +71,7 @@ void EKF::correction_step(int step) {
         Eigen::MatrixXd Hi(2, 5);
         Hi << -sqrt(distance2)*deltax, -sqrt(distance2)*deltay, 0, sqrt(distance2)*deltax, sqrt(distance2)*deltay, 
             deltay, -deltax, -distance2, -deltay, deltax;
-        
+        Hi = 1/distance2 * Hi;
         // Map Jacobian Hi to high dimensional space by a mapping matrix Fxj
         Fxj(4, 2*ldmkId+1) = 1;
         Fxj(5, 2*ldmkId+2) = 1;
@@ -80,12 +81,22 @@ void EKF::correction_step(int step) {
         H.row(2*i+1) = Hi.row(1);     
     }
     // TODO: Construct the sensor noise matrix Q
-
+    Eigen::MatrixXd Q(2*mNum, 2*mNum);
+    Q.setIdentity();
+    Q = 0.01 * Q;
     // TODO: Compute the Kalman gain
-
+    Eigen::MatrixXd temp = H * sigma_ * H.transpose() + Q;
+    Eigen::MatrixXd K = sigma_ * H.transpose() * temp.inverse();
     // TODO: Compute the difference between the expected and recorded measurements
-    
+    Eigen::MatrixXd diffZ = Z - expectedZ;
+    for(int i = 1; i < mNum*2; ++i) {
+        diffZ(i) = remainder(diffZ(i), 2*M_PI);
+    }    
     // TODO: Finish the correction step by computing the new mu and sigma.
+    mu_ = mu_ + K * diffZ;
+    Eigen::MatrixXd Iden(dim, dim);
+    Iden.setIdentity();
+    sigma_ = (Iden-K*H) * sigma_;
 }
 
 Eigen::MatrixXd EKF::getmu() {
