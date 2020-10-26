@@ -24,13 +24,13 @@ void EKF::prediction_step(int step) {
     Eigen::MatrixXd G(dim, dim);
     G << Gx, Gl, Gl.transpose(), Gll;
     Eigen::MatrixXd Te = sigma_ * G.transpose();
-    cerr << "----" << endl;
-    cerr << Te.matrix() << endl;
+    // cerr << "----" << endl;
+    // cerr << Te.matrix() << endl;
 
     // Compute the predicted sigma after incorporating the motion
     sigma_ = G * sigma_ * G.transpose() + R;
-    cerr << "----" << endl;
-    cerr << sigma_.matrix() << endl;
+    // cerr << "----" << endl;
+    // cerr << sigma_.matrix() << endl;
 }
 
 void EKF::correction_step(int step) {

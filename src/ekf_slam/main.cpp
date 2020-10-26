@@ -37,10 +37,13 @@ int main(int argc, char **argv) {
     
     vector<int> observedLdmks(n, 0);
     EKF ekf(mu, sigma, sens, observedLdmks);
-    //ekf.prediction_step(0);
-    ekf.correction_step(0);
+    // ekf.prediction_step(0);
+    // ekf.correction_step(0);
     for(int i = 0; i < sens.size(); ++i) {
-        
+        cerr << i << endl;
+        ekf.prediction_step(i);
+        ekf.correction_step(i);
+        cerr << ekf.getmu().transpose().matrix() << endl;
     }
     return 0;
 }
