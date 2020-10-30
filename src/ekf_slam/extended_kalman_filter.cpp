@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <Eigen/Dense>
+#include <opencv2/opencv.hpp>
 
 void EKF::prediction_step(int step) {
     vector<double> odom = sensdata_[step].odom;
@@ -87,7 +88,7 @@ void EKF::correction_step(int step) {
     // TODO: Compute the Kalman gain
     Eigen::MatrixXd temp = H * sigma_ * H.transpose() + Q;
     Eigen::MatrixXd K = sigma_ * H.transpose() * temp.inverse();
-    // TODO: Compute the difference between the expected and recorded measurements
+	// TODO: Compute the difference between the expected and recorded measurements
     Eigen::MatrixXd diffZ = Z - expectedZ;
     for(int i = 1; i < mNum*2; ++i) {
         diffZ(i) = remainder(diffZ(i), 2*M_PI);
@@ -97,6 +98,7 @@ void EKF::correction_step(int step) {
     Eigen::MatrixXd Iden(dim, dim);
     Iden.setIdentity();
     sigma_ = (Iden-K*H) * sigma_;
+	cerr << "end correction" << endl;
 }
 
 Eigen::MatrixXd EKF::getmu() {
@@ -105,4 +107,16 @@ Eigen::MatrixXd EKF::getmu() {
 
 Eigen::MatrixXd EKF::getsigma() {
     return sigma_;
+}
+
+void EKF::plot_state(int step) {
+	int WINDOW_WIDTH = 300;
+	cv::Mat out = cv::Mat::zeros(WINDOW_WIDTH, WINDOW_WIDTH, CV_8UC3);
+	//DrawEllipse(out, mu(2)*180/MI_PI);
+	cv::ellipse(out, cv::Point(WINDOW_WIDTH/2, WINDOW_WIDTH/2), cv::Size(30, 150), 
+			mu_(2), -M_PI, M_PI, cv::Scalar(0, 0, 255), 2, 8);
+	cv::circle(out, cv::Point(WINDOW_WIDTH/2, WINDOW_WIDTH/2), WINDOW_WIDTH / 32, 
+			cv::Scalar(0, 0, 255), -1, 8);
+	cv::imshow("traj", out);
+	cv::waitKey(0);
 }

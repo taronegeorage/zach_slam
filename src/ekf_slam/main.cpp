@@ -42,9 +42,10 @@ int main(int argc, char **argv) {
     for(int i = 0; i < sens.size(); ++i) {
         cerr << i << endl;
         ekf.prediction_step(i);
-        ekf.correction_step(i);
+		ekf.correction_step(i);
         cerr << ekf.getmu().transpose().matrix() << endl;
-    }
+		//ekf.plot_state(i);
+	}
     return 0;
 }
 

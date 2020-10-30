@@ -21,6 +21,7 @@ public:
     void correction_step(int step);
     Eigen::MatrixXd getmu();
     Eigen::MatrixXd getsigma();
+    void plot_state(int step);
 private:                                                         
     Eigen::MatrixXd mu_, sigma_;
     std::vector<sensors> sensdata_;
