@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
         ekf.prediction_step(i);
 		ekf.correction_step(i);
         cerr << ekf.getmu().transpose().matrix() << endl;
-		//ekf.plot_state(i);
+		ekf.plot_state(i);
 	}
     return 0;
 }

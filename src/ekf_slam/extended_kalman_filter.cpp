@@ -6,8 +6,8 @@
 
 void EKF::prediction_step(int step) {
     vector<double> odom = sensdata_[step].odom;
-    mu_(0,0) = mu_(0,0) + (odom[1] * cos(mu_(3,0)+odom[0]));
-    mu_(1,0) = mu_(1,0) + (odom[1] * cos(mu_(3,0)+odom[0]));
+    mu_(0,0) = mu_(0,0) + (odom[1] * cos(mu_(2,0)+odom[0]));
+    mu_(1,0) = mu_(1,0) + (odom[1] * cos(mu_(2,0)+odom[0]));
     mu_(2,0) = mu_(2,0) + (odom[0] + odom[2]);
     mu_(2,0) = remainder(mu_(2,0), 2*M_PI);
     //cerr << mu_.matrix() << endl;
@@ -65,8 +65,8 @@ void EKF::correction_step(int step) {
         double deltay = mu_(2*ldmkId+2, 0) - mu_(1, 0);
         double distance2 = deltax*deltax+deltay*deltay;
         
-        expectedZ(2*i-2, 0) = sqrt(distance2);
-        expectedZ(2*i-1, 0) = remainder(atan2(deltay, deltax)-mu_(2, 0), 2*M_PI);
+        expectedZ(2*i, 0) = sqrt(distance2);
+        expectedZ(2*i+1, 0) = remainder(atan2(deltay, deltax)-mu_(2, 0), 2*M_PI);
 
         // TODO: Compute the Jacobian Hi of the measurement function h for this observation
         Eigen::MatrixXd Hi(2, 5);
@@ -74,8 +74,8 @@ void EKF::correction_step(int step) {
             deltay, -deltax, -distance2, -deltay, deltax;
         Hi = 1/distance2 * Hi;
         // Map Jacobian Hi to high dimensional space by a mapping matrix Fxj
-        Fxj(4, 2*ldmkId+1) = 1;
-        Fxj(5, 2*ldmkId+2) = 1;
+        Fxj(3, 2*ldmkId+1) = 1;
+        Fxj(4, 2*ldmkId+2) = 1;
         Hi = Hi * Fxj;
         //H.block<2, dim>(2*i, 0) = Hi;     
         H.row(2*i) = Hi.row(0);
@@ -90,15 +90,15 @@ void EKF::correction_step(int step) {
     Eigen::MatrixXd K = sigma_ * H.transpose() * temp.inverse();
 	// TODO: Compute the difference between the expected and recorded measurements
     Eigen::MatrixXd diffZ = Z - expectedZ;
-    for(int i = 1; i < mNum*2; ++i) {
+    for(int i = 1; i < mNum*2; ) {
         diffZ(i) = remainder(diffZ(i), 2*M_PI);
+		i += 2;
     }    
     // TODO: Finish the correction step by computing the new mu and sigma.
     mu_ = mu_ + K * diffZ;
     Eigen::MatrixXd Iden(dim, dim);
     Iden.setIdentity();
     sigma_ = (Iden-K*H) * sigma_;
-	cerr << "end correction" << endl;
 }
 
 Eigen::MatrixXd EKF::getmu() {
