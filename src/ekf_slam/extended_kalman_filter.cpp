@@ -110,12 +110,13 @@ Eigen::MatrixXd EKF::getsigma() {
 }
 
 void EKF::plot_state(int step) {
-	int WINDOW_WIDTH = 300;
+	int WINDOW_WIDTH = 100;
+	int center = WINDOW_WIDTH / 2;
 	cv::Mat out = cv::Mat::zeros(WINDOW_WIDTH, WINDOW_WIDTH, CV_8UC3);
 	//DrawEllipse(out, mu(2)*180/MI_PI);
-	cv::ellipse(out, cv::Point(WINDOW_WIDTH/2, WINDOW_WIDTH/2), cv::Size(30, 150), 
-			mu_(2), -M_PI, M_PI, cv::Scalar(0, 0, 255), 2, 8);
-	cv::circle(out, cv::Point(WINDOW_WIDTH/2, WINDOW_WIDTH/2), WINDOW_WIDTH / 32, 
+	cv::ellipse(out, cv::Point(center+mu_(0),  center+mu_(1)), cv::Size(30, 150), 
+			mu_(2)*180/M_PI, -180, 180, cv::Scalar(0, 0, 255), 1, 8);
+	cv::circle(out, cv::Point(center+mu_(0),  center+mu_(1)), 4, 
 			cv::Scalar(0, 0, 255), -1, 8);
 	cv::imshow("traj", out);
 	cv::waitKey(0);
