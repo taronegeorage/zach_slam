@@ -40,12 +40,13 @@ int main(int argc, char **argv) {
     // ekf.prediction_step(0);
     // ekf.correction_step(0);
     for(int i = 0; i < sens.size(); ++i) {
-        cerr << i << endl;
+        cerr << i+1 << endl;
         ekf.prediction_step(i);
 		ekf.correction_step(i);
         cerr << ekf.getmu().transpose().matrix() << endl;
-		ekf.plot_state(i);
+		// ekf.plot_state(i);
 	}
+    cerr << ekf.getmu().transpose().matrix() << endl;
     return 0;
 }
 

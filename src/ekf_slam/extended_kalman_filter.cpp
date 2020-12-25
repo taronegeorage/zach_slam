@@ -7,7 +7,7 @@
 void EKF::prediction_step(int step) {
     vector<double> odom = sensdata_[step].odom;
     mu_(0,0) = mu_(0,0) + (odom[1] * cos(mu_(2,0)+odom[0]));
-    mu_(1,0) = mu_(1,0) + (odom[1] * cos(mu_(2,0)+odom[0]));
+    mu_(1,0) = mu_(1,0) + (odom[1] * sin(mu_(2,0)+odom[0]));
     mu_(2,0) = mu_(2,0) + (odom[0] + odom[2]);
     mu_(2,0) = remainder(mu_(2,0), 2*M_PI);
     //cerr << mu_.matrix() << endl;
@@ -79,7 +79,9 @@ void EKF::correction_step(int step) {
         Hi = Hi * Fxj;
         //H.block<2, dim>(2*i, 0) = Hi;     
         H.row(2*i) = Hi.row(0);
-        H.row(2*i+1) = Hi.row(1);     
+        H.row(2*i+1) = Hi.row(1);
+        Fxj(3, 2*ldmkId+1) = 0;
+        Fxj(4, 2*ldmkId+2) = 0;
     }
     // TODO: Construct the sensor noise matrix Q
     Eigen::MatrixXd Q(2*mNum, 2*mNum);
